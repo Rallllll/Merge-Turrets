@@ -3,7 +3,7 @@
 public class Turret : MonoBehaviour
 {
     [Header("Thông số bắn")]
-    public int laneID; // Sẽ dùng sau khi kết hợp với hệ thống Grid
+    [HideInInspector] public int laneID; // Sẽ dùng sau khi kết hợp với hệ thống Grid
     public float fireRate = 1f; // Bắn 1 phát / giây
     public float attackRange = 10f; // Tầm quét quái (Độ dài tia laser)
 
@@ -15,6 +15,10 @@ public class Turret : MonoBehaviour
     private Animator anim;
     private float fireTimer;
 
+    [Header("Merge Info")]
+    public int turretLevel = 1; // Súng cấp 1
+    public Slot currentSlot;
+
     void Start()
     {
         anim = GetComponent<Animator>();
@@ -22,16 +26,18 @@ public class Turret : MonoBehaviour
 
     void Update()
     {
+        // Nếu súng đang ở MergeZone (ID = -1) thì không làm gì cả, return luôn.
+        if (laneID == -1) return;
+
         fireTimer -= Time.deltaTime;
 
-        // Nếu súng đã sẵn sàng bắn
         if (fireTimer <= 0f)
         {
-            // Kiểm tra xem trên đường đạn bay (làn của súng này) có quái không
+            // Kiểm tra raycast xem có quái không
             if (CheckEnemyInLane())
             {
                 Shoot();
-                fireTimer = 1f / fireRate; // Đặt lại thời gian chờ
+                fireTimer = 1f / fireRate;
             }
         }
     }
@@ -60,13 +66,14 @@ public class Turret : MonoBehaviour
     // Mở Animation clip bắn của Turret, đến frame lóe sáng, Add Event gọi hàm này
     public void SpawnBulletAndVFX()
     {
-        // 1. Lấy VFX từ Pool
-        if (VfxPool.Instance != null)
+        // THÊM DÒNG NÀY: Nếu ID là -1 thì không sinh đạn/VFX gì hết, cấm tuyệt đối!
+        if (laneID == -1) return;
+
+        if (VfxPool.Instance != null && shootVFXPrefab != null)
         {
             VfxPool.Instance.GetVfx(firePoint.position, Quaternion.identity);
         }
 
-        // 2. Lấy Đạn từ Pool
         if (bulletPrefab != null)
         {
             BulletPool.Instance.GetBullet(firePoint.position, Quaternion.identity);

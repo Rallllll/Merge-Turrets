@@ -2,15 +2,27 @@
 
 public class VFX : MonoBehaviour
 {
-    // [GẮN ANIMATION EVENT]
-    // Mở clip animation của cái VFX này lên, đi tới frame cuối cùng
-    // Add Animation Event và chọn hàm OnVFXFinished() này.
-    public void OnVFXFinished()
+    [Header("Thoi gian song cua VFX")]
+    public float lifeTime = 0.3f; // Chỉnh thời gian này khớp với độ dài hiệu ứng (0.3s - 0.5s)
+
+    // Hàm OnEnable tự chạy mỗi khi VFX được lấy ra từ Pool
+    void OnEnable()
     {
-        // Kiểm tra an toàn trước khi trả về Pool
+        // Hẹn giờ chuẩn xác: Sau khoảng thời gian 'lifeTime' sẽ tự động cất về kho
+        Invoke("ReturnToPool", lifeTime);
+    }
+
+    void ReturnToPool()
+    {
         if (gameObject.activeInHierarchy)
         {
             VfxPool.Instance.ReturnVfx(gameObject);
         }
+    }
+
+    void OnDisable()
+    {
+        // Hủy lịch hẹn giờ nếu object bị tắt đột ngột
+        CancelInvoke();
     }
 }
