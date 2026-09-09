@@ -3,20 +3,22 @@
 public class Turret : MonoBehaviour
 {
     [Header("Thông số bắn")]
-    [HideInInspector] public int laneID; // Sẽ dùng sau khi kết hợp với hệ thống Grid
+    [HideInInspector] public int laneID;
     public float fireRate = 1f; // Bắn 1 phát / giây
-    public float attackRange = 10f; // Tầm quét quái (Độ dài tia laser)
+    public float attackRange = 10f; // Tầm quét quái
 
     [Header("Tham chiếu")]
-    public GameObject bulletPrefab;   // Kéo Prefab Đạn vào đây
-    public GameObject shootVFXPrefab; // Kéo Prefab hiệu ứng lóe nòng súng (nếu có)
-    public Transform firePoint;       // Kéo cái FirePoint vào đây
+    public GameObject bulletPrefab;     // Kéo Prefab Đạn vào đây
+    public GameObject shootVFXPrefab; // Kéo Prefab hiệu ứng lóe nòng súng
+
+    [Header("Nhiều nòng súng (Fire Points)")]
+    public Transform[] firePoints;    // <--- Đã đổi thành Mảng (Array) để chứa n vị trí bắn!
 
     private Animator anim;
     private float fireTimer;
 
     [Header("Merge Info")]
-    public int turretLevel = 1; // Súng cấp 1
+    public int turretLevel = 1;
     public Slot currentSlot;
 
     void Start()
@@ -26,14 +28,13 @@ public class Turret : MonoBehaviour
 
     void Update()
     {
-        // Nếu súng đang ở MergeZone (ID = -1) thì không làm gì cả, return luôn.
         if (laneID == -1) return;
 
         fireTimer -= Time.deltaTime;
 
         if (fireTimer <= 0f)
         {
-            // Kiểm tra raycast xem có quái không
+            // Kiểm tra raycast (Dùng firePoints[0] làm mốc dò quái chính)
             if (CheckEnemyInLane())
             {
                 Shoot();
@@ -44,11 +45,11 @@ public class Turret : MonoBehaviour
 
     bool CheckEnemyInLane()
     {
-        // Bắn một tia Raycast vô hình thẳng lên trên
-        // Chỉ quét những vật thể thuộc Layer "Enemy"
-        RaycastHit2D hit = Physics2D.Raycast(firePoint.position, Vector2.up, attackRange, LayerMask.GetMask("Enemy"));
+        if (firePoints == null || firePoints.Length == 0 || firePoints[0] == null) return false;
 
-        // Nếu tia này chạm vào cái gì đó -> Có quái
+        // Bắn tia Raycast từ nòng đầu tiên lên trên
+        RaycastHit2D hit = Physics2D.Raycast(firePoints[0].position, Vector2.up, attackRange, LayerMask.GetMask("Enemy"));
+
         if (hit.collider != null)
         {
             return true;
@@ -58,35 +59,47 @@ public class Turret : MonoBehaviour
 
     void Shoot()
     {
-        // Gọi Animation bắn
         anim.SetTrigger("isShooting");
     }
 
     // [GẮN ANIMATION EVENT CỦA TURRET]
-    // Mở Animation clip bắn của Turret, đến frame lóe sáng, Add Event gọi hàm này
+    // Hàm này sẽ tự động lặp qua TẤT CẢ các vị trí nòng súng để nhả đạn và VFX đồng loạt
     public void SpawnBulletAndVFX()
     {
-        // THÊM DÒNG NÀY: Nếu ID là -1 thì không sinh đạn/VFX gì hết, cấm tuyệt đối!
         if (laneID == -1) return;
+        if (firePoints == null || firePoints.Length == 0) return;
 
-        if (VfxPool.Instance != null && shootVFXPrefab != null)
+        // Vòng lặp foreach duyệt qua từng nòng súng trong mảng
+        foreach (Transform fp in firePoints)
         {
-            VfxPool.Instance.GetVfx(firePoint.position, Quaternion.identity);
-        }
+            if (fp == null) continue;
 
-        if (bulletPrefab != null)
-        {
-            BulletPool.Instance.GetBullet(firePoint.position, Quaternion.identity);
+            // Sinh VFX tại từng nòng
+            if (VfxPool.Instance != null && shootVFXPrefab != null)
+            {
+                VfxPool.Instance.GetVfx(fp.position, Quaternion.identity);
+            }
+
+            // Sinh đạn tại từng nòng
+            if (bulletPrefab != null)
+            {
+                BulletPool.Instance.GetBullet(fp.position, Quaternion.identity);
+            }
         }
     }
 
-    // Hàm này giúp bạn vẽ một tia laser màu đỏ trong màn hình Scene để dễ căn chỉnh tầm nhìn
+    // Vẽ tia laser kiểm tra tầm nhìn cho tất cả các nòng trong Scene
     private void OnDrawGizmosSelected()
     {
-        if (firePoint != null)
+        if (firePoints == null) return;
+
+        foreach (Transform fp in firePoints)
         {
-            Gizmos.color = Color.red;
-            Gizmos.DrawRay(firePoint.position, Vector2.up * attackRange);
+            if (fp != null)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawRay(fp.position, Vector2.up * attackRange);
+            }
         }
     }
 }

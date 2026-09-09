@@ -59,7 +59,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6843097259229414863}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 3.4099998, y: 3.8899996, z: 0}
   m_LocalScale: {x: 0.6492951, y: 0.6492951, z: 0.6492951}
   m_ConstrainProportionsScale: 1
@@ -182,7 +182,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: -0.17339581}
+  m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -211,6 +211,7 @@ MonoBehaviour:
   attackRange: 10
   bulletPrefab: {fileID: 5123436676241660858, guid: efafb57363d128d4fad0129e25a0ab05, type: 3}
   shootVFXPrefab: {fileID: 4338209661858727218, guid: 91bdd628777316e4b83640265b48459f, type: 3}
-  firePoint: {fileID: 3568448749929243448}
+  firePoints:
+  - {fileID: 3568448749929243448}
   turretLevel: 8
   currentSlot: {fileID: 0}

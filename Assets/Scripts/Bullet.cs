@@ -28,15 +28,15 @@ public class Bullet : MonoBehaviour
         }
     }
 
-    //private void OnTriggerEnter2D(Collider2D collision)
-    //{
-       // Enemy enemy = collision.GetComponent<Enemy>();
-       // if (enemy != null)
-       // {
-        //    enemy.TakeDamage(damage);
-         //   ReturnToPool(); // Trúng quái thì trả về Pool
-       // }
-    //}
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        Enemy enemy = collision.GetComponent<Enemy>();
+        if (enemy != null)
+        {
+            enemy.TakeDamage(damage);
+            ReturnToPool(); // Trúng quái thì trả về Pool
+        }
+    }
 
     void ReturnToPool()
     {
