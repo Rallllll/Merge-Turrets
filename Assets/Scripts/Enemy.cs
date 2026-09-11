@@ -73,6 +73,12 @@ public class Enemy : MonoBehaviour
             StartCoroutine(FlashRed());
         }
 
+        if (DamageTextPool.Instance != null)
+        {
+            Vector3 textPos = transform.position + new Vector3(0, 0.5f, 0);
+            DamageTextPool.Instance.SpawnDamageText(textPos, damage);
+        }
+
         if (type == EnemyType.Hybrid && currentHP <= maxHP / 2 && isMoving)
         {
             TriggerTransformation();
