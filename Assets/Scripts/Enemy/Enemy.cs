@@ -31,6 +31,8 @@ public class Enemy : MonoBehaviour
     private bool isMoving = true; 
     private bool isDead = false;
 
+    public int goldReward = 5;
+
     void Awake()
     {
         anim = GetComponent<Animator>();
@@ -119,6 +121,11 @@ public class Enemy : MonoBehaviour
         if (explosionPrefab != null)
         {
             ExplosionPool.Instance.GetExplosion(transform.position, Quaternion.identity);
+        }
+
+        if (GoldManager.Instance != null)
+        {
+            GoldManager.Instance.AddGold(goldReward);
         }
 
         // Trả quái về Pool thay vì Destroy
